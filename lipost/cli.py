@@ -187,6 +187,9 @@ def _load_manifest(env, draft_id):
         if missing:
             raise UsageError(f"local manifest for {draft_id} is incomplete "
                              f"(missing: {', '.join(missing)}); nothing published")
+        if data["draft_id"] != draft_id:
+            raise UsageError(f"local manifest for {draft_id} belongs to draft "
+                             f"{data['draft_id']}; nothing published")
     return data
 
 

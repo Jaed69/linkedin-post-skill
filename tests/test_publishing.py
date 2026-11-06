@@ -191,6 +191,20 @@ class PublishTest(DraftHelpers, CliTestCase):
         self.assertEqual(proc.returncode, 2)
         self.assertNotIn("Traceback", proc.stderr)
 
+    def test_publish_refused_when_manifest_belongs_to_other_draft(self):
+        path = self.manifest_path(self.draft_id)
+        with open(path) as fh:
+            manifest = json.load(fh)
+        manifest["draft_id"] = "other-draft"
+        with open(path, "w") as fh:
+            json.dump(manifest, fh)
+        before = sha256_file(path)
+        other_token = expected_token("other-draft", manifest["text"], manifest["image_sha256"])
+        proc = self.run_cli("publish", self.draft_id, "--confirm", other_token)
+        self.assert_refused(proc, "manifest")
+        self.assertEqual(proc.returncode, 2)
+        self.assertEqual(sha256_file(path), before)
+
     def test_status_prints_remote_state(self):
         proc = self.run_cli("status", self.draft_id)
         self.assertEqual(proc.returncode, 0, proc.stderr)
