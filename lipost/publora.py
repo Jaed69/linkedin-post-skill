@@ -6,6 +6,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from . import __version__
 from .ports import Connection, Publisher, PublisherError, RemoteDraft
 
 DEFAULT_BASE_URL = "https://api.publora.com/api/v1"
@@ -26,6 +27,9 @@ def check_url(url):
     raise ValueError(f"refusing non-https URL: {url}")
 
 
+USER_AGENT = f"lipost/{__version__}"
+
+
 class PubloraPublisher(Publisher):
     def __init__(self, api_key, base_url=DEFAULT_BASE_URL, timeout=TIMEOUT_SECONDS):
         self._key = api_key
@@ -34,7 +38,10 @@ class PubloraPublisher(Publisher):
         self._opener = urllib.request.build_opener(_NoRedirect)
 
     def _send(self, method, url, body=None, headers=None):
-        req = urllib.request.Request(url, data=body, method=method, headers=headers or {})
+        headers = dict(headers or {})
+        # Cloudflare in front of Publora rejects Python's default User-Agent (error 1010).
+        headers.setdefault("User-Agent", USER_AGENT)
+        req = urllib.request.Request(url, data=body, method=method, headers=headers)
         try:
             with self._opener.open(req, timeout=self._timeout) as resp:
                 raw = resp.read()

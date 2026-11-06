@@ -134,6 +134,13 @@ class PublishTest(DraftHelpers, CliTestCase):
         self.assertEqual(update["headers"]["x-publora-key"], API_KEY)
         self.assertIn("scheduled", proc.stdout)
 
+    def test_api_calls_send_lipost_user_agent(self):
+        # Cloudflare in front of Publora rejects Python's default User-Agent (error 1010).
+        proc = self.run_cli("publish", self.draft_id, "--confirm", self.token)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        for request in self.fake.requests:
+            self.assertRegex(request["headers"].get("user-agent", ""), r"^lipost/\d")
+
     def test_publish_refused_on_wrong_token(self):
         proc = self.run_cli("publish", self.draft_id, "--confirm", "000000000000")
         self.assert_refused(proc, "token")
