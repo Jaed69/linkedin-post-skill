@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lipost"
+version = "0.1.0"
+description = "Prepare photos and publish LinkedIn posts behind a swappable publisher port"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+lipost = "lipost.cli:main"
+
+[tool.setuptools]
+packages = ["lipost"]
