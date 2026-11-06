@@ -29,7 +29,7 @@ lipost status <draft_id>
 | `photos SRC_DIR --out DIR [--sheet PATH]` | Writes auto-oriented copies of each JPEG/PNG with all metadata stripped, reports originals that had GPS, verifies the copies have none. Never modifies originals; `--out` must differ from `SRC_DIR`. `--sheet` writes a labeled contact sheet. |
 | `blur IN OUT --polygon X,Y X,Y X,Y... [--force]` | Writes a copy of `IN` with the polygon region blurred. Refuses when `OUT` is `IN`, or when `OUT` exists without `--force`. |
 | `draft --text FILE [--image PATH]... [--platform ID]` | Validates (non-empty text, at most 3,000 characters, at most 10 JPEG/PNG images), creates a remote draft, uploads the images, saves a local manifest and prints the preview: full text, images, character count, the first 210 characters ("see more" fold) and a confirmation token. Trailing whitespace of the text file is dropped. |
-| `publish DRAFT_ID --confirm TOKEN` | Publishes only if the token matches the local manifest and the remote draft still has the approved text, the approved number of images and status `draft`. Otherwise publishes nothing. |
+| `publish DRAFT_ID --confirm TOKEN` | Publishes only if the token matches the local manifest and the remote draft still has the approved text, the approved target account, the approved number of images and status `draft`. Otherwise publishes nothing. |
 | `status DRAFT_ID` | Shows remote status, platforms, character and media counts, and whether a local manifest exists. |
 | `delete DRAFT_ID` | Deletes a draft remotely and its local manifest. Refuses anything that is not a draft. |
 
