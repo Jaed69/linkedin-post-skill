@@ -38,13 +38,13 @@ You draft and prepare. The user decides what goes out. Publishing is irreversibl
    - Stay under 3,000 characters, and make the first 210 characters (the "see more" fold) carry the hook.
 6. **Revise** with the user until they say it is final. Save it as `~/lipost/<slug>/post.txt` with real blank lines between paragraphs. Pasting into the LinkedIn editor drops blank lines; whether the API keeps them is not yet confirmed, so check the first published post and record the answer here.
 7. **Draft remotely.** Run `lipost draft --text post.txt --image ...` in the order the user chose. Show the user the full preview it prints: text, images, character count and fold.
-8. **Publish only on an explicit yes** to that exact preview, given in the user's own message after it. Then run `lipost publish <draft_id> --confirm <token>`. Claude Code asks the user to approve this command; never try to avoid that prompt. If anything changes after the preview, run `lipost delete` and draft again.
+8. **Publish only on an explicit yes** to that exact preview, given in the user's own message after it. Then give the user the exact command to run themselves, as `! lipost publish <draft_id> --confirm <token>`. A PreToolUse hook denies `lipost publish` from Claude's Bash tool because auto mode approves `ask` rules without prompting; never try to work around that hook. If anything changes after the preview, run `lipost delete` and draft again.
 9. **After.** Run `lipost status <draft_id>` and report the outcome. Append to `voice.md` the phrases and structure the user kept or rejected.
 
 ## Hard rules
 
 - Never publish without step 8. "Looks good" about an earlier version is not approval.
-- Never pass the confirmation token around the user, and never publish by any other route: no Publora MCP server, no direct HTTP calls, no browser automation.
+- Never run `lipost publish` yourself, and never publish by any other route: no Publora MCP server, no direct HTTP calls, no browser automation.
 - Never invent facts, numbers, quotes, feelings, names or results.
 - If `lipost` refuses (exit 2), report its message and stop. Do not work around it.
 - Do not scrape LinkedIn or automate the browser.
