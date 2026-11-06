@@ -9,6 +9,59 @@ No third-party Python packages.
 
 Run from the checkout with `bin/lipost`, or `python3 -m lipost`.
 
+## Install with Claude Code
+
+The repository has two parts: the `lipost` CLI and a Claude Code skill
+(`skill/SKILL.md`) that drives it end to end: picking and cleaning photos,
+interviewing you, drafting in your voice, previewing, and publishing after you
+approve.
+
+```sh
+git clone https://github.com/Jaed69/linkedin-post-skill.git
+cd linkedin-post-skill
+ln -s "$PWD/bin/lipost" ~/.local/bin/lipost        # CLI on PATH
+ln -s "$PWD/skill" ~/.claude/skills/lipost         # the skill
+mkdir -p ~/.claude/hooks && cp hooks/lipost-publish-gate.sh ~/.claude/hooks/
+```
+
+Store your Publora API key yourself (Publora dashboard → API → Generate API
+Key) without pasting it into a chat:
+
+```sh
+mkdir -p ~/.config/lipost
+install -m 600 /dev/null ~/.config/lipost/env
+read -rsp 'Publora API key: ' k && printf 'PUBLORA_API_KEY=%s\n' "$k" >> ~/.config/lipost/env; unset k; echo
+lipost connections                                  # prints your platform id
+echo 'LIPOST_PLATFORM_ID=linkedin-...' >> ~/.config/lipost/env
+```
+
+Then make Claude Code ask you before any publish. Merge this into
+`~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "ask": ["Bash(lipost publish *)", "Bash(python3 -m lipost publish *)"],
+    "deny": ["Read(~/.config/lipost/env)", "Edit(~/.config/lipost/env)"]
+  },
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{ "type": "command", "command": "~/.claude/hooks/lipost-publish-gate.sh", "timeout": 10 }]
+    }]
+  }
+}
+```
+
+The `ask` rule covers the plain command; the hook also catches other spellings
+(full paths, `cd x && bin/lipost ...`). Both show a permission prompt, and the
+skill stops if you decline it. The `deny` rules keep Claude's file tools away
+from your key.
+
+Optionally, write `~/.config/lipost/voice.md`: how you write, phrases you use,
+things you never do. The skill reads it before drafting and updates it after
+each post.
+
 ## Typical flow
 
 ```sh
@@ -89,3 +142,15 @@ python3 -m unittest discover -s tests -v
 
 Tests run Publora as a local fake server on 127.0.0.1 and generate images with
 ImageMagick; they make no external network calls.
+
+## Credits
+
+The skill's interview method (one question at a time, nothing invented,
+before/after spine) is adapted from
+[sergebulaev/linkedin-skills](https://github.com/sergebulaev/linkedin-skills) (MIT).
+Building the voice profile from your own samples comes from
+[charlie947/social-media-skills](https://github.com/charlie947/social-media-skills) (MIT).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
